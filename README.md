@@ -15,6 +15,14 @@ To populate a `react` component with the results of a `sparql` query `xyz`, this
 - `mapStateToProps` to extract information from the reducer: did the request succeed and what are the results;
 - a stateful component that will call `loadXyzIfNeeded` within the `componentWillMount` and `componentWillReceiveProps` lifecycle methods.
 
+## Install
+
+Install it directly from this gitHub repo:
+
+```
+npm install --save noknot/sparql-connect
+````
+
 ## How to use it
 
 ### Configure `sparql-connect`

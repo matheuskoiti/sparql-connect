@@ -1,9 +1,8 @@
 # sparql-connect
 
-Provides utility functions to easily populate `react` components with `sparql`
-query results stored in a `redux` store.
+Provides utility functions to easily populate react components with sparql query results stored in a `redux` store.
 
-This library eliminates boilerplate when dealing with components populated by `sparql` query results.
+This library eliminates boilerplate when dealing with components populated by sparql query results.
 
 To populate a `react` component with the results of a `sparql` query `xyz`, this library generates: 
 - action constants `LOAD_XYZ`, `LOAD_XYZ_SUCCESS`, `LOAD_XYZ_FAILURE` ;
@@ -12,9 +11,17 @@ To populate a `react` component with the results of a `sparql` query `xyz`, this
  * `loadXyz` which handles the remote call;
  * `loadXyzSuccess` which processes the results; to process the results we need to look at the query to know what to expect;
  * `loadXyzFailure`;
- - a reducer which handles the aforementioned actions by adding an entry for the query parameter;
- - `mapStateToProps` to extract information from the reducer: did the request succeed and what are the results;
- - a stateful component that will call `loadXyzIfNeeded` within the `componentWillMount` and `componentWillReceiveProps` lifecycle methods.
+- a reducer which handles the aforementioned actions by adding an entry for the query parameter;
+- `mapStateToProps` to extract information from the reducer: did the request succeed and what are the results;
+- a stateful component that will call `loadXyzIfNeeded` within the `componentWillMount` and `componentWillReceiveProps` lifecycle methods.
+
+## Install
+
+Install it directly from this gitHub repo:
+
+```
+npm install --save noknot/sparql-connect
+````
 
 ## How to use it
 

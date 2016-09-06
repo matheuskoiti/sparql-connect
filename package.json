@@ -1,6 +1,6 @@
 {
   "name": "sparql-connect",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Utility functions to populate `react` components with `sparql` query results stored in a `redux` store.",
   "main": "lib/index.js",
   "dependencies": {
@@ -18,7 +18,7 @@
     "babel-preset-react": "^6.5.0"
   },
   "scripts": {
-    "preinstall": "babel src --out-dir lib"
+    "prepublish": "npm run babel src --out-dir lib"
   },
   "repository": {
     "type": "git",

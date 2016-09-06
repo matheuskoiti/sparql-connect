@@ -18,7 +18,7 @@
     "babel-preset-react": "^6.5.0"
   },
   "scripts": {
-    "prepublish": "npm run babel src --out-dir lib"
+    "prepublish": "./node_modules/.bin/babel src --out-dir lib"
   },
   "repository": {
     "type": "git",

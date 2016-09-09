@@ -17,6 +17,10 @@ export function buildActionCreators(queryName, query, fetchQueryHolder, sparqlNa
     queryBuilder
   } = query
   
+  if (queryBuilder === undefined) throw new ReferenceError(
+    `No query builder function was provided for \`${queryName}\``
+  )
+  
   const { 
     LOAD_ACTION,
     LOAD_SUCCESS_ACTION,
@@ -70,6 +74,7 @@ export function buildActionCreators(queryName, query, fetchQueryHolder, sparqlNa
       `\${typeof fetchQuery}\`. Check what has been passed to ` +
       '`buildSparqlConnector` or to `setFetchQuery`')
       
+    
     return fetchQuery(queryBuilder(...args))
       .then(rawResults => {
         const results = processResults(rawResults)

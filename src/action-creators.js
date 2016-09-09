@@ -8,7 +8,7 @@ const buildParams = (params, args) =>
     return builtParams
   }, {})
   
-export function buildActionCreators(queryName, query, fetchQuery, sparqlName) {
+export function buildActionCreators(queryName, query, fetchQueryHolder, sparqlName) {
 
   const {
     params: paramsDescr,
@@ -58,6 +58,18 @@ export function buildActionCreators(queryName, query, fetchQuery, sparqlName) {
       payload: { params }
     })
     
+    const fetchQuery = fetchQueryHolder.fetchQuery
+    
+    if (fetchQuery === undefined) throw new ReferenceError(
+      'Fetch query is undefined in `sparql-connect`; it probably has not ' +
+      'been set yet. Use the `setFetchQuery` function returned by ' +
+      '`buildSparqlConnector` to set it.')
+      
+    if (typeof fetchQuery !== 'function') throw new TypeError(
+      'Expected `fetchQuery` to be a `function`, get a ' +
+      `\${typeof fetchQuery}\`. Check what has been passed to ` +
+      '`buildSparqlConnector` or to `setFetchQuery`')
+      
     return fetchQuery(queryBuilder(...args))
       .then(rawResults => {
         const results = processResults(rawResults)

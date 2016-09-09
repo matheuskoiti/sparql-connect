@@ -39,13 +39,16 @@ import { LOADED, LOADING, FAILED } from './remote-constants'
  * @return {Object}             utilities to connect to sparql queries
  */
 function buildSparqlConnector(queries, fetchQuery, sparqlName='results') {
+  //Allow setting of `fetchQuery` later, useful to bootsrap the application
+  //before having the credentials
+  const fetchHolder = { fetchQuery: fetchQuery }
   const { 
     reducers: sparqlReducers,
     connectFns: sparqlConnect
   } = Object.keys(queries).reduce(({ reducers, connectFns }, queryName) => {
     const query = queries[queryName]
     const { loadIfNeeded, actions } = 
-      buildActionCreators(queryName, query, fetchQuery, sparqlName)
+      buildActionCreators(queryName, query, fetchHolder, sparqlName)
     reducers[queryName] = buildReducer(query, actions)
     connectFns[queryName] = 
       buildConnect(queryName, query, loadIfNeeded, sparqlName)
@@ -85,7 +88,8 @@ function buildSparqlConnector(queries, fetchQuery, sparqlName='results') {
   
   return {
     sparqlConnect,
-    enhanceReducer
+    enhanceReducer,
+    setFetchQuery: fetchQuery => { fetchHolder.fetchQuery = fetchQuery }
   }
 } 
 

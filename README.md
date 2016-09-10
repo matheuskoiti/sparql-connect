@@ -21,7 +21,7 @@ Install it directly from this gitHub repo:
 
 ```
 npm install --save noknot/sparql-connect
-````
+```
 
 ## How to use it
 
@@ -41,9 +41,18 @@ https://www.w3.org/TR/sparql11-results-json/)
 
 export const {
   sparqlConnect,
-  enhanceReducer
-} = buildSparqlConnector(queries, buildFetch(queryURL, authorization))
+  enhanceReducer //mainReducer is another option,
+  //setFetchQuery
+} = buildSparqlConnector(
+      queries, //documented queries
+      buildFetch(queryURL, authorization), //it can be undefined
+      'results' //where to find sparql results in the main state
+    )
 ```
+
+The second argument of `buildSparqlConnector` is a function which sends a query to the server and return a promise that resolve to the results of that query. If omitted, this function can be set later with `setFetchQuery` (this is useful for instance to bootstrap the application before having the credentials to the remote calls).
+
+If the state does nothing more than the handling of sparql queries, we can use `mainReducer` in place of `enhanceReducer`. `mainReducer` will act as the main application reducer, where `enhanceReducer` is intended to be used to enhance an existing reducer (by adding an entry to the state to hold sparql results). To use `mainReducer`, do not provide any third argument to `buildSparqlConnector`: this third argument is intended to describe the name where to find sparql query results when we enhance an existing reducer.
 
 ### Add a new query builder
 

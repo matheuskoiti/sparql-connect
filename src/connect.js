@@ -57,7 +57,11 @@ export function buildConnect(queryName, query, loadIfNeeded, extractState) {
     //trying to load the results.
     const enhanceMSTP = (state, ownProps) => {
       const entry = getEntry(extractState(state)[queryName], query.params, ownProps)
-      const loaded = entry ? entry.status  : LOADING
+      //when the query does not take any parameter, status should be LOADING
+      //by default
+      //TODO improve status handling (LOADING doest not really mean loading, it
+      //means "not failed or loaded")
+      const loaded = entry ? (entry.status || LOADING)  : LOADING
       //success
       if (loaded === LOADED) {
         if (singleResult) return {

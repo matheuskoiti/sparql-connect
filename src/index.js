@@ -7,11 +7,17 @@ import { LOADED, LOADING, FAILED } from './remote-constants'
  * Build utility functions to connect components to documented sparql queries
  * 
  * It returns:
- * - a reducer enhancer: called with a main reducer, it will add a `results`
- * entry to the state; all the data under this entry will be related to sparql
- * queries and will be handled by dedicated reducers;
- * - a collection of functions (one per query) that enable to feed a component
- * with the results of sparql query.
+ * - `reducer`: a reducer function;
+ * - `enhanceReducer`: a reducer enhancer that allows to embed the reducer in an
+ * existing recucer. Called with a main reducer, it will add a `results` entry
+ * to the state; all the data under this entry will be related to sparql queries
+ * and will be handled by dedicated reducers;
+ * - `sparqlConnect`: a collection of functions (one per query) that enable to
+ * feed a component with the results of sparql query;
+ * - `setFetchQuery`: a function to set the function that will be use by the
+ * action creators to send the query to the server; this function is useful
+ * when we do not have a proper fetch function when we bootstrap the application
+ * (for instance if we need to ask for credentials first).
  *
  * The `collect` functions will expose special props to the wrapped component:
  * - loaded (LOADING, LOADED, FAILED): status of the query;
@@ -34,11 +40,17 @@ import { LOADED, LOADING, FAILED } from './remote-constants'
  * 
  * @param  {Object} queries     documented queries
  * @param  {Object} fetchQuery  sends the query to the server and returns a
- *                              promise that resolves to results
+ *                              promise that resolves to results (optional)
  * @param  {String} sparqlName  the key to access the sparql reducer
  * @return {Object}             utilities to connect to sparql queries
  */
-function buildSparqlConnector(queries, fetchQuery, sparqlName='results') {
+function buildSparqlConnector(queries, fetchQuery, sparqlName) {
+  //If `sparqlName` is set and not empty, it will return a reducer enhancer. So
+  //to access the piece of state concerning the spaql queries, we will need to
+  //extract the `sparqlName` entry from the state.
+  //I `sparqlName` is not set, it will return a regular reducer.
+  const extractState = sparqlName ? 
+    state => state[sparqlName] : state => state
   //Allow setting of `fetchQuery` later, useful to bootsrap the application
   //before having the credentials
   const fetchHolder = { fetchQuery: fetchQuery }
@@ -48,45 +60,65 @@ function buildSparqlConnector(queries, fetchQuery, sparqlName='results') {
   } = Object.keys(queries).reduce(({ reducers, connectFns }, queryName) => {
     const query = queries[queryName]
     const { loadIfNeeded, actions } = 
-      buildActionCreators(queryName, query, fetchHolder, sparqlName)
+      buildActionCreators(queryName, query, fetchHolder, extractState)
     reducers[queryName] = buildReducer(query, actions)
     connectFns[queryName] = 
-      buildConnect(queryName, query, loadIfNeeded, sparqlName)
+      buildConnect(queryName, query, loadIfNeeded, extractState)
     return { reducers, connectFns }
   }, { reducers: {}, connectFns: {} })
 
   
-  function enhanceReducer(reducer) {
-    // empty state for sparql related data (one entry per query)
-    const defaultState = {
-      [sparqlName]: Object.keys(sparqlReducers).reduce((empty, reducerId) => {
-        empty[reducerId] = {}
-        return empty
+
+  const _mainReducer = (state={}, action) => 
+    Object.keys(sparqlReducers)
+      .reduce((states, reducerId) => {
+        states[reducerId] = 
+          sparqlReducers[reducerId](state[reducerId], action)
+        return states
       }, {})
-    }
-      
-    return function enhancedWithSparqlReducer(state=defaultState, action) {
+  
+   function _enhanceReducer(reducer) {
+    return function enhancedWithSparqlReducer(state={}, action) {
       //we need to split the state in two parts: the part handled by the main
       //reducer and the part handled by the sparql reducer (under the
       //`results` entry if `sparqlName` was not provided). We could be tempted
       //to give the whole state to both reducers, but if the main reducer was
       //built with `combineReducers`, `redux` will complain about 'unexpected
       //keys' (not harmful but anyway).
-      
       let { [sparqlName]: sparqlState, ...mainState } = state
       return {
         ...reducer(mainState, action),
-        [sparqlName]: Object.keys(sparqlReducers)
-          .reduce((states, reducerId) => {
-            states[reducerId] = 
-              sparqlReducers[reducerId](sparqlState[reducerId], action)
-            return states
-          }, {})
+        [sparqlName]: _mainReducer(sparqlState, action)
       }
     }
   }
   
+  let mainReducer, enhanceReducer
+  
+  if (sparqlName) {
+    enhanceReducer = _enhanceReducer
+    mainReducer = (...args) => {
+      console.warn(
+        '`mainReducer` is not expected to be used as is because you ' + 
+        '`sparqlName` as third argument of `buildSparqlConnector`. It ' +
+        `means that results will stay under \`${sparqlName}\` in the state` 
+      )
+      return _mainReducer(...args)
+    }
+  }
+  else {
+    mainReducer = _mainReducer
+    enhanceReducer = () => {
+      throw new Error(
+        'To use `enhanceReducer` you need to provide a `sparqlName` as third ' +
+        'arugment of `buildSparqlConnector`. You should use `mainReducer` ' +
+        'instead.'
+      )
+    }
+  }
+    
   return {
+    mainReducer,
     sparqlConnect,
     enhanceReducer,
     setFetchQuery: fetchQuery => { fetchHolder.fetchQuery = fetchQuery }

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { getEntry } from './state-utils'
 import { LOADING, LOADED, FAILED } from './remote-constants'
 
-export function buildConnect(queryName, query, loadIfNeeded, sparqlName) {
+export function buildConnect(queryName, query, loadIfNeeded, extractState) {
 
   // the local variable that holds the wrapped component must start with an
   // uppercase (ie  `function(myComponent)` won't work)
@@ -56,7 +56,7 @@ export function buildConnect(queryName, query, loadIfNeeded, sparqlName) {
     //- if FAILED: error, the error message returned by the promise when
     //trying to load the results.
     const enhanceMSTP = (state, ownProps) => {
-      const entry = getEntry(state[sparqlName][queryName], query.params, ownProps)
+      const entry = getEntry(extractState(state)[queryName], query.params, ownProps)
       const loaded = entry ? entry.status  : LOADING
       //success
       if (loaded === LOADED) {

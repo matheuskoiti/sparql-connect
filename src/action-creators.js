@@ -8,7 +8,8 @@ const buildParams = (params, args) =>
     return builtParams
   }, {})
   
-export function buildActionCreators(queryName, query, fetchQueryHolder, sparqlName) {
+export function buildActionCreators(
+    queryName, query, fetchQueryHolder, extractState) {
 
   const {
     params: paramsDescr,
@@ -54,7 +55,8 @@ export function buildActionCreators(queryName, query, fetchQueryHolder, sparqlNa
   const processResults = buildProcessResultsFn(resultsDescr, singleResult)
   
   const loadIfNeeded = (...args) => (dispatch, getState) => {
-    const { [sparqlName]: { [queryName]: resultsForQuery }} = getState()
+    const state = extractState(getState())
+    const { [queryName]: resultsForQuery } = state
     if (!checkIfNeeded(resultsForQuery, args)) return
     const params = buildParams(paramsDescr, args)
     dispatch({

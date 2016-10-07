@@ -30,10 +30,10 @@ export function buildActionCreators(
   
   // we build `checkIfNeeded` once for all
   const checkIfNeeded =  
-    //TODO if there is no argument (for instance for the list of all
-    //classifcations) handle `checkIfNeeded` properly to avoid multilple
-    //loads of the same data)
-    paramsDescr.length === 0 ? () => true :
+    //TODO we should check the status and reload only in it is not LOADED or
+    //LOADING
+    paramsDescr.length === 0 ? 
+      pieceOfState => Object.keys(pieceOfState).length === 0 :
     //There is no real need to distinguish one param only to multiple params,
     //but this special case can help understand the whole picture (plus
     //optimization, but it is surely unsignificant)

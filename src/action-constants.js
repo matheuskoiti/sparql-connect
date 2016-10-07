@@ -2,7 +2,8 @@ const camelCaseRegExp = /([a-z])([A-Z])/g
 
 const creatorSuffixFromName = queryName =>
   queryName.replace(camelCaseRegExp, '$1_$2').toUpperCase()
-  
+
+export const FLUSH_ACTION = 'FLUSH'
 export const buildActionConstants = queryName => {
   const actionCreatorSuffix = creatorSuffixFromName(queryName)
   return {

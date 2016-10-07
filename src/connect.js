@@ -3,7 +3,8 @@ import { connect } from 'react-redux'
 import { getEntry } from './state-utils'
 import { LOADING, LOADED, FAILED } from './remote-constants'
 
-export function buildConnect(queryName, query, loadIfNeeded, extractState) {
+export function buildConnect(
+    queryName, query, loadIfNeeded, flush, extractState) {
 
   // the local variable that holds the wrapped component must start with an
   // uppercase (ie  `function(myComponent)` won't work)
@@ -90,7 +91,8 @@ export function buildConnect(queryName, query, loadIfNeeded, extractState) {
     }
     
     const mapDispatchToProps = {
-      loadIfNeeded
+      loadIfNeeded,
+      flush
     }
     
     return connect(enhanceMSTP, mapDispatchToProps)(Connect)

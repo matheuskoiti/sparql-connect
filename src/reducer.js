@@ -21,6 +21,10 @@ function loadFailureHndlr(stateEntry, { params, error }) {
   }
 }
 
+function flushHndlr(state) {
+  return {}
+}
+
 export function buildReducer(query, actions) {
   //`pointToStateEntry` allows to process only one entry from an immutable
   //collection and to replace it
@@ -29,6 +33,8 @@ export function buildReducer(query, actions) {
     [actions.LOAD_SUCCESS_ACTION]: loadSuccesHndlr,
     [actions.LOAD_FAILURE_ACTION]: loadFailureHndlr
   })
+  
+  hndlrs[actions.FLUSH_ACTION] = flushHndlr
   
   return function (state={}, action) {
     const hndlr = hndlrs[action.type]

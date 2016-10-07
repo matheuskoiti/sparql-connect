@@ -135,6 +135,8 @@ export default sparqlConnect.levelItems(Items)
 
 ## Misc
 
+### single result expected
+
 The `singleResult` option in the query documentation is intended to make queries like "details for one item" more easy to process. If `singleResult` is set to `true` in the query documentation special rules apply when processing the results. We expect one and only one row in the results, so it will throw an error if there is no result or more than one row. Plus, results won't be exposed to the component as an array, but the results variables will be passed directly to the component. For instance, if the results description is :
 
 ```javascript
@@ -149,8 +151,11 @@ We can write a component like this:
 ```javascript
 function myComponent({ loaded, code, label, issued }) {...}
 ```
+### reset the reducer
+
+`sparql-connect` will return results from the application state if a query has already been submitted. But sometimes, we want the query to be sent to the server again (especially when we did an update). Each connected component can use the `flush` function passed as a prop to reset the reducer. Each query will need to be sent to the server since no results will be available from the reducers. For now, it resets all the reducers, in the future, we might want to make it configurable.
 
 ## TODO
 
-1. Handle requests with multiple arguments: there's still some work to do to update the reducer.
+1. Handle requests with multiple arguments: there's still some work to do to update the reducer (concatenating parameters might be an easier option than handling nested objects).
 2. Handle optional variables. For now, when not present in the results, they are replaced by an empty string, but we might prefer to be able to specify a default value. Plus, sometimes variables that are not supposed to be optional are missing in the results, we should provide a way to throw errors in this situation.

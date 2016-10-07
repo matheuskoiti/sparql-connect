@@ -1,5 +1,5 @@
 import { buildProcessResultsFn } from './results'
-import { buildActionConstants } from './action-constants'
+import { buildActionConstants, FLUSH_ACTION } from './action-constants'
 
 const buildParams = (params, args) =>
   params.reduce((builtParams, param, i) => {
@@ -54,6 +54,11 @@ export function buildActionCreators(
   //resolves.
   const processResults = buildProcessResultsFn(resultsDescr, singleResult)
   
+  const flush = () => ({
+    type: FLUSH_ACTION,
+    payload: {}
+  })
+    
   const loadIfNeeded = (...args) => (dispatch, getState) => {
     const state = extractState(getState())
     const { [queryName]: resultsForQuery } = state
@@ -101,7 +106,9 @@ export function buildActionCreators(
   //action constants that can be used by a reducer.
   return {
     loadIfNeeded,
+    flush,
     actions: {
+      FLUSH_ACTION,
       LOAD_ACTION,
       LOAD_SUCCESS_ACTION,
       LOAD_FAILURE_ACTION

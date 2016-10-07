@@ -59,11 +59,11 @@ function buildSparqlConnector(queries, fetchQuery, sparqlName) {
     connectFns: sparqlConnect
   } = Object.keys(queries).reduce(({ reducers, connectFns }, queryName) => {
     const query = queries[queryName]
-    const { loadIfNeeded, actions } = 
+    const { loadIfNeeded, flush, actions } = 
       buildActionCreators(queryName, query, fetchHolder, extractState)
     reducers[queryName] = buildReducer(query, actions)
     connectFns[queryName] = 
-      buildConnect(queryName, query, loadIfNeeded, extractState)
+      buildConnect(queryName, query, loadIfNeeded, flush, extractState)
     return { reducers, connectFns }
   }, { reducers: {}, connectFns: {} })
 

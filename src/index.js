@@ -54,20 +54,44 @@ function buildSparqlConnector(queries, fetchQuery, sparqlName) {
   //Allow setting of `fetchQuery` later, useful to bootsrap the application
   //before having the credentials
   const fetchHolder = { fetchQuery: fetchQuery }
+  //exclude higher order queries for now
+  const simpleQueries = Object.keys(queries).reduce((_, queryName) => {
+    const query = queries[queryName]
+    if (!query.queries) _[queryName] = query
+    return _
+  }, {})
+
+  let globalFlush
   const { 
     reducers: sparqlReducers,
-    connectFns: sparqlConnect
-  } = Object.keys(queries).reduce(({ reducers, connectFns }, queryName) => {
+    connectFns: sparqlConnect,
+    loadIfNeededFns
+  } = Object.keys(simpleQueries).reduce(
+      ({ reducers, connectFns, loadIfNeededFns }, queryName) => {
     const query = queries[queryName]
     const { loadIfNeeded, flush, actions } = 
       buildActionCreators(queryName, query, fetchHolder, extractState)
+    globalFlush = flush //to use for higher order queries //TODO improve
+    loadIfNeededFns[queryName] = loadIfNeeded
     reducers[queryName] = buildReducer(query, actions)
     connectFns[queryName] = 
       buildConnect(queryName, query, loadIfNeeded, flush, extractState)
-    return { reducers, connectFns }
-  }, { reducers: {}, connectFns: {} })
+    return { reducers, connectFns, loadIfNeededFns }
+  }, { reducers: {}, connectFns: {}, loadIfNeededFns: {} })
 
-  
+  //add `connectFns` for higher order queries (no reducer for them)
+  Object.keys(queries).forEach(queryName => {
+    const query = queries[queryName]
+    if (!query.queries) return //simple query, already processed
+    //TODO `loadIfNeeded` is an object of functions here, but a function 
+    //for simple query => improve api.
+    const loadIfNeeded = query.queries.reduce((_, simpleQuery) => {
+        _[simpleQuery.name] = loadIfNeededFns[simpleQuery.name]
+        return _
+      }, {})
+    sparqlConnect[queryName] =
+      buildConnect(queryName, query, loadIfNeeded, globalFlush, extractState, queries)
+  })
 
   const _mainReducer = (state={}, action) => 
     Object.keys(sparqlReducers)

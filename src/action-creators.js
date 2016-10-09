@@ -78,7 +78,7 @@ export function buildActionCreators(
       
     if (typeof fetchQuery !== 'function') throw new TypeError(
       'Expected `fetchQuery` to be a `function`, get a ' +
-      `\${typeof fetchQuery}\`. Check what has been passed to ` +
+      `\`${typeof fetchQuery}\`. Check what has been passed to ` +
       '`buildSparqlConnector` or to `setFetchQuery`')
       
     

@@ -102,14 +102,19 @@ function buildSparqlConnector(queries, fetchQuery, sparqlName) {
       }, {})
   
    function _enhanceReducer(reducer) {
-    return function enhancedWithSparqlReducer(state={}, action) {
+    return function enhancedWithSparqlReducer(state, action) {
       //we need to split the state in two parts: the part handled by the main
       //reducer and the part handled by the sparql reducer (under the
       //`results` entry if `sparqlName` was not provided). We could be tempted
       //to give the whole state to both reducers, but if the main reducer was
       //built with `combineReducers`, `redux` will complain about 'unexpected
       //keys' (not harmful but anyway).
-      let { [sparqlName]: sparqlState, ...mainState } = state
+      let sparqlState, mainState
+      if (state !== undefined) {
+         let { [sparqlName]: sparqlState_, ...mainState_ } = state
+         sparqlState = sparqlState_
+         mainState = mainState_
+      }
       return {
         ...reducer(mainState, action),
         [sparqlName]: _mainReducer(sparqlState, action)

@@ -154,6 +154,7 @@ function myComponent({ loaded, code, label, issued }) {...}
 ### reset the reducer
 
 `sparql-connect` will return results from the application state if a query has already been submitted. But sometimes, we want the query to be sent to the server again (especially when we did an update). Each connected component can use the `flush` function passed as a prop to reset the reducer. Each query will need to be sent to the server since no results will be available from the reducers. For now, it resets all the reducers, in the future, we might want to make it configurable.
+A global `flush` function is also returned by `buildSparqlConnector`, so it can be used outside of `sparql` connected components.
 
 ## TODO
 

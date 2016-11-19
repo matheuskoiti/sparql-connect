@@ -142,6 +142,7 @@ function buildSparqlConnector(queries, fetchQuery, sparqlName) {
   }
     
   return {
+    flush: globalFlush,
     mainReducer,
     sparqlConnect,
     enhanceReducer,

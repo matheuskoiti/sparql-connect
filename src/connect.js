@@ -62,13 +62,15 @@ export function buildConnect(
   const sameArgsFromProps = simpleQuery ?
     sameArgsFromPropsSimpleQuery : sameArgsFromPropsHOQuery
     
-  return function sparqlConnect(WrappedComponent) {
+  return function sparqlConnect(WrappedComponent, options={}) {
     //TODO check if the use of `connect` here is ok (we might better build the
     //component outside, in order to avoid useless calls to `connect`:
     //`connect` produces a formal description, not a per-instance based
     //function; in other words, `connect` won't build `mapDispatchToProps` for
     //each instance, but only once for the component, and we should not lose
     //this benefit).
+    const ErrorCmpnt = options.error || (() => <span>Error while retrieving results</span>)
+    const LoadingCmpnt = options.loading || (() => <span>Results are loading...</span>)
     class Connect extends Component {
       
       constructor(props) {
@@ -89,6 +91,9 @@ export function buildConnect(
       }
       
       render() {
+        const { loaded } = this.props
+        if (loaded === FAILED) return <ErrorCmpnt />
+        if (loaded === LOADING) return <LoadingCmpnt />
         return <WrappedComponent
           flush={() => this.props.dispatch(flush())}
           {...this.props} />

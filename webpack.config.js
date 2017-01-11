@@ -20,6 +20,8 @@ module.exports = {
     fs: 'empty'
   },   
   output: {
+    library: 'sparql-connect',
+    libraryTarget: 'umd',
     path: __dirname + '/lib',
     filename: './sparql-connect.js'
   }

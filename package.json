@@ -1,6 +1,6 @@
 {
   "name": "sparql-connect",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Utility functions to populate `react` components with `sparql` query results stored in a `redux` store.",
   "main": "lib/sparql-connect.js",
   "dependencies": {

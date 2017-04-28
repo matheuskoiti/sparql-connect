@@ -1,5 +1,35 @@
 # Documentation
 
+
+## Bootstrapping the application
+
+This library relies on `redux` to manage the application state. So a `redux` store should be available to your react components. An easy way to do this is to use `react-redux` [`Provider`](https://github.com/reactjs/redux/blob/master/docs/basics/UsageWithReact.md#passing-the-store).
+
+You first need to create a `redux` reducer which will track the fetch process and the results, and plug it into your `redux` store. Something like this:
+
+```javascript
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
+
+import { getReducer } from 'sparql-connect'
+
+//`getReducer` creates the reducer used by sparql-connect
+const store =  createStore(getReducer())
+
+export default class Root extends Component {
+  render() {
+    return (
+      <Provider store={store}>
+        (...)
+      </Provider>
+    )
+  }
+}
+
+```
+
+
+
 ## A simple example
 
 The shortest way to populate a component with some query results is as follows:

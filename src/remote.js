@@ -33,19 +33,24 @@ export function buildFetchQuery(token) {
       'Attempting to send a query but the sparql endpoint URL has not been ' +
         'set. Use `setQueryURL` to define this URL.'
     );
+
+  const headers = {
+    Accept: 'application/sparql-results+json',
+    // We need to pass some `x-www-form-urlencoded` data.
+    //`multipart/form-data` created with `new FormData()` does not work.
+    'Content-Type': 'application/x-www-form-urlencoded'
+  };
+  //Don't set `Authorisation` header if no token was provided. For instance,
+  //dbpedia.org does not like it: Request header field authorization is not
+  //allowed by Access-Control-Allow-Headers in preflight response.
+  if (token) headers['Authorization'] = token;
   //`fetchQuery` is a function that takes a `sparql` query string, sends it to
   //the server and returns a promise that resolves to the query results
   // (https://www.w3.org/TR/sparql11-results-json/)
   return function fetchQuery(query) {
     return fetch(queryURL, {
       method: 'POST',
-      headers: {
-        Authorization: token,
-        Accept: 'application/sparql-results+json',
-        // We need to pass some `x-www-form-urlencoded` data.
-        //`multipart/form-data` created with `new FormData()` does not work.
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
+      headers,
       body: bodyFromSparql(processQuery(query, prefixes))
     });
   };

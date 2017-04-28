@@ -8,8 +8,7 @@ import {
   buildFetchQuery,
   buildFetchQuerySmart,
   checkAuthentication as checkAuthenticationRaw,
-  setPrefixes,
-  setQueryURL
+  setPrefixes
 } from './remote';
 
 const {
@@ -56,21 +55,28 @@ function getFetchQuery() {
   return fetchQuery;
 }
 
-//authentication callback
-function authenticationSuccess(token) {
+//used as an authentication callback
+function registerFetchQuery(queryURL, token) {
   //build the fetch function used for updates query
-  fetchQuery = buildFetchQuery(token);
+  fetchQuery = buildFetchQuery(queryURL, token);
   //build the fetch function used for select queries and register it with
   //`setFetchResource`
-  setFetchResource(buildFetchQuerySmart(token));
+  setFetchResource(buildFetchQuerySmart(queryURL, token));
 }
 
 function checkAuthentication(token) {
   return checkAuthenticationRaw(token).then(isAuth => {
-    if (isAuth) authenticationSuccess(token);
+    if (isAuth) registerFetchQuery(token);
     return isAuth;
   });
 }
+
+//sparql endpoint URL
+let queryURL;
+const setQueryURL = URL => {
+  queryURL = URL;
+  registerFetchQuery(queryURL);
+};
 
 export {
   setQueryURL,

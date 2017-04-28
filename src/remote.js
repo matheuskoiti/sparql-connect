@@ -12,10 +12,6 @@ let prefixes = {
 };
 export const setPrefixes = prefixDict => (prefixes = prefixDict);
 
-//sparql endpoint URL
-let queryURL;
-export const setQueryURL = URL => (queryURL = URL);
-
 export function checkAuthentication(token) {
   //This query is used to check if the server returns an authentication error
   const testQuery = 'SELECT ?s { ?s ?p ?o} LIMIT 1';
@@ -27,13 +23,7 @@ export function checkAuthentication(token) {
   );
 }
 
-export function buildFetchQuery(token) {
-  if (queryURL === undefined)
-    throw new Error(
-      'Attempting to send a query but the sparql endpoint URL has not been ' +
-        'set. Use `setQueryURL` to define this URL.'
-    );
-
+export function buildFetchQuery(queryURL, token) {
   const headers = {
     Accept: 'application/sparql-results+json',
     // We need to pass some `x-www-form-urlencoded` data.
@@ -56,9 +46,9 @@ export function buildFetchQuery(token) {
   };
 }
 
-export function buildFetchQuerySmart(token) {
+export function buildFetchQuerySmart(queryURL, token) {
   return function fetchQuerySmart({ query, singleResult }) {
-    return buildFetchQuery(token)(query)
+    return buildFetchQuery(queryURL, token)(query)
       .then(res => res.json())
       .then(buildProcessResults(singleResult));
   };
